@@ -45,6 +45,7 @@ export default defineConfig(async () => {
   const { cloudflare } = await import('@cloudflare/vite-plugin');
 
   return {
+    resolve: { alias: [{ find: '../../../db/registration-store', replacement: new URL('./db/registration-store.cloudflare.ts', import.meta.url).pathname.replace(/^\/(?=[A-Za-z]:)/, '') }] },
     css: { postcss: { plugins: [tailwindcss()] } },
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
@@ -59,3 +60,4 @@ export default defineConfig(async () => {
     ],
   };
 });
+

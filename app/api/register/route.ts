@@ -1,4 +1,4 @@
-import { registrationDb } from '../../../db/registration-db';
+import { saveRegistration } from '../../../db/registration-store';
 const allowed=['Neuralysis','Hackathon','SyntaxShowdown','InfoWiz','The Copycat Blueprint','WikiThon'];
 export async function POST(request:Request){
  const origin=request.headers.get('origin');if(origin&&origin!==new URL(request.url).origin)return Response.json({error:'Please register from this website.'},{status:403});
@@ -7,5 +7,6 @@ export async function POST(request:Request){
  if(!data||typeof data!=='object')return Response.json({error:'Invalid registration details.'},{status:400});
  const {name,email,phone,institution,events,consent}=data;
  if(typeof name!=='string'||!name.trim()||name.length>100||typeof email!=='string'||email.length>254||!/^\S+@\S+\.\S+$/.test(email)||typeof phone!=='string'||! /^(?:\+91[ -]?)?[6-9][0-9]{9}$/.test(phone)||typeof institution!=='string'||!institution.trim()||institution.length>150||!Array.isArray(events)||events.length<1||events.length>6||events.some(e=>!allowed.includes(e))||consent!=='on')return Response.json({error:'Please enter valid contact details, choose at least one event, and agree to registration communication.'},{status:400});
- try{const id=crypto.randomUUID();await registrationDb().prepare('INSERT INTO registrations (id,name,email,phone,institution,events,created_at) VALUES (?,?,?,?,?,?,?)').bind(id,name.trim(),email.trim().toLowerCase(),phone,institution.trim(),JSON.stringify([...new Set(events)]),new Date().toISOString()).run();return Response.json({id},{status:201,headers:{'Cache-Control':'no-store'}});}catch{return Response.json({error:'Registration is temporarily unavailable. Please try again shortly.'},{status:503});}
+ try{const id=crypto.randomUUID();await saveRegistration({id,name:name.trim(),email:email.trim().toLowerCase(),phone,institution:institution.trim(),events:JSON.stringify([...new Set(events)]),createdAt:new Date().toISOString()});return Response.json({id},{status:201,headers:{'Cache-Control':'no-store'}});}catch{return Response.json({error:'Registration is temporarily unavailable. Please try again shortly.'},{status:503});}
 }
+
