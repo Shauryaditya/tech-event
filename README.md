@@ -1,4 +1,4 @@
-# tech-event
+# Matrix Unbounded
 
 Advantage Academic Centre technology and AI event website with six competitions and registration.
 
